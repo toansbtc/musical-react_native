@@ -1,14 +1,65 @@
-import React, { useEffect, useState } from 'react'
-import { View, Image, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react'
+import { View, Image, StyleSheet, Text, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
+// import { API_Key } from '../API/APIYouTube'
+import { API_Key } from '@env';
 
-export default function Youtubeframe({ youTube }: any, { sendDatatoParent }: any) {
+
+async function name(channelId: string) {
+    try {
+
+        const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings&id=${channelId}&key=${API_Key}`;
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        // console.log(url)
+        // console.log(data.items[0].snippet.thumbnails.default.url);
+
+        return data.items[0].snippet.thumbnails.default.url;
+    } catch (error) {
+
+    }
+
+}
+
+const setDisplayTitle = (title: string): string => {
+    let data = '';
+    const array = title.split(' ');
+    for (let i = 0; i < 10; i++)
+        if (typeof array[i] !== 'undefined')
+            data += ' ' + array[i]
+
+    if (array.length > 10)
+        data += ' ...'
+    return data
+
+
+}
+
+
+
+export default function Youtubeframe({ youTube, sendDatatoParent }: any) {
     const [playReady, setPlayReady] = useState(false);
-    const [videoId, discription, title, imageLink] = youTube;
+    const [videoId, discription, title, imageLink, channelId, channelTitle] = youTube;
+    const { width, height } = Dimensions.get('window');
+    const [imageChanelLink, setImageChannelLink] = useState<string>();
+
+    name(channelId).then((data) => { if (data != null) setImageChannelLink(data) });
 
     useEffect(() => {
         setPlayReady(true);
     }, []);
+
+    const checkRotation = useCallback(() => {
+        // console.log('rotate haha')
+        if (width > height)
+            return style.horizantal
+        else
+            return style.vertical
+    }, [width | height])
+
+
     return (
         <View style={style.item_youtube}>
             <TouchableWithoutFeedback
@@ -17,33 +68,41 @@ export default function Youtubeframe({ youTube }: any, { sendDatatoParent }: any
                 }}
             >
 
-                {/* {playReady && (
-                <YoutubeIframe
-                    videoId={videoId}
-                    height={250}
-                    width={250}
-                    play={false}
-                    onReady={() => setPlayReady(true)}
-                />
-            )}
-            <View style={style.descript}>
-                <Text style={{ fontSize: 20, fontStyle: 'normal', fontWeight: 'bold' }}>{title}</Text>
-                <Text numberOfLines={5} style={{ flexShrink: 1, flexWrap: 'wrap', marginTop: 10, flexDirection: 'row' }} aria-valuemax={100}>{discription}</Text>
-            </View> */}
-
-                <Image source={{ uri: imageLink }} height={250} width={250} />
-
+                <Image source={{ uri: imageLink }} style={checkRotation()} />
 
             </TouchableWithoutFeedback>
+            <View style={style.infor}>
+                <View style={style.descript}>
+                    <Text style={[{ marginLeft: 10, fontSize: 19, fontStyle: 'normal', fontWeight: 'bold' }, style.text]}>{setDisplayTitle(title)}</Text>
+                    <Text style={[{ margin: 10 }, style.text]}>{discription}</Text>
+                </View>
+                <TouchableWithoutFeedback
+                    onPress={() => {
+                        sendDatatoParent(channelId)
+                    }}
+                >
+                    <View style={{ flexDirection: 'row' }}>
 
-            <View style={style.descript}>
-                <Text style={{ fontSize: 20, fontStyle: 'normal', fontWeight: 'bold' }}>{title}</Text>
-                <Text numberOfLines={5} style={{ flexShrink: 1, flexWrap: 'wrap', marginTop: 10, flexDirection: 'row' }} aria-valuemax={100}>{discription}</Text>
+
+
+                        <Image source={loadImageChanel(imageChanelLink as string)} style={style.imageChanel} />
+
+                        <Text style={{ alignSelf: 'center', fontWeight: 'bold' }}>{channelTitle}</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+
+
             </View>
-            <View style={{ height: 100, width: '100%' }}></View>
         </View>
-
     );
+}
+
+const loadImageChanel = (imageChanelLink: string) => {
+    try {
+        return imageChanelLink !== '' ? { uri: imageChanelLink } : { uri: '' }
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 const style = StyleSheet.create({
@@ -52,13 +111,37 @@ const style = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         height: 200,
-        marginBottom: 80
+        width: 'auto',
+        margin: 10,
+        // borderWidth: 1,
+        // borderColor: 'red'
+    },
+    infor: {
+        flex: 1,
+        flexDirection: 'column'
     },
     descript: {
+        flex: 1,
         flexDirection: 'column',
-        flexWrap: 'wrap',
-        marginLeft: 5,
-        marginRight: 20,
-        width: '60%',
-    }
+        marginLeft: 10,
+    },
+    text: {
+        // flex: 1,
+        //maxWidth: '80%',
+        color: '#000',
+        lineHeight: 21,
+        includeFontPadding: true,
+        overflow: 'hidden',
+        flexShrink: 1,
+        alignItems: 'flex-start',
+
+    },
+    imageChanel: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        margin: 10
+    },
+    horizantal: { width: '40%', height: '110%' },
+    vertical: { width: '50%', height: '100%' }
 })

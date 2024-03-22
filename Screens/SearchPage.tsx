@@ -10,8 +10,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import Footer from '../Components/Footer';
 import { useDebounce } from 'use-debounce';
-import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faCancel, faClose, faFilter } from '@fortawesome/free-solid-svg-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
+import YoutubeIframe from 'react-native-youtube-iframe';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+
 
 
 
@@ -34,7 +37,10 @@ async function onSearch(text?: string): Promise<string[]> {
                 arrayVideo.push([data.items[i].id.videoId,
                 data.items[i].snippet.description,
                 data.items[i].snippet.title,
-                data.items[i].snippet.thumbnails.high.url]);
+                data.items[i].snippet.thumbnails.high.url,
+                data.items[i].snippet.channelId,
+                data.items[i].snippet.channelTitle]);
+
             }
         // })
 
@@ -46,36 +52,69 @@ async function onSearch(text?: string): Promise<string[]> {
 }
 
 
-const renderVideo = ({ item }: any) => {
-    console.log('render ' + item);
-    return (
-        <Youtubeframe youTube={item} />
-    )
-}
 
 export default function SearchPage({ navigation }: any) {
     //const date =
-    let search = '';
+    const [cleanText, setCleanText] = useState('')
     const [itemYT, setItemYT] = useState<Array<string>>();
-    const [openModal, setOpenModal] = useState(false);
-
     const [searchText, setSearchText] = useState('');
-    const [deboundSearchText, setDeboundSearchText] = useDebounce(searchText, 500);
+    const [youtubeVideo, setYoutubeVideo] = useState<string[]>([]);
 
-    useRef(renderVideo);
+    const [openModalFilter, setOpenModalFilter] = useState(false);
+    const [openModalVideoYT, setOpenModalVideoYT] = useState(false);
+    const [playReady, setPlayReady] = useState(false);
 
 
-    useEffect(() => {
-        setSearchText(deboundSearchText);
-    }, [deboundSearchText]);
+
+
+    var data1 = [''];
+
+
+
+
+    const getDatafromChild = (data: any) => {
+        if (typeof data === 'string') {
+            onSearch(data).then((item) => {
+                setItemYT(item);
+            })
+            //console.log('id chanel' + data);
+        }
+        else {
+
+            setOpenModalVideoYT(true);
+            setYoutubeVideo(data);
+            // console.log(typeof data)
+            data1 = data;
+            console.log(data1)
+        }
+    }
+
+    const renderVideo = ({ item }: any) => {
+        // console.log('render ' + item);
+
+
+        return (
+            <Youtubeframe youTube={item} sendDatatoParent={getDatafromChild} />
+        )
+    }
+
+
+
+
+
+
+
+
+
+
+
+    //useRef(renderVideo);
 
     useEffect(() => {
         if (searchText !== null && searchText !== '') {
             onSearch(searchText).then((data) => {
                 setItemYT(data);
             })
-            // setItemYT(onSearch(searchText));
-            // console.log('haha   ' + searchText)
         }
     }, [searchText]);
 
@@ -84,8 +123,6 @@ export default function SearchPage({ navigation }: any) {
         onSearch().then((data) => {
             setItemYT(data)
         })
-        //setItemYT(onSearch());
-        //console.log('onload ' + itemYT)
     }, [])
 
     const route = useRoute();
@@ -97,78 +134,133 @@ export default function SearchPage({ navigation }: any) {
 
 
     const modalFilter = () => {
-        if (openModal === false)
-            setOpenModal(true);
+
+        if (openModalFilter === false) {
+            setOpenModalFilter(true);
+        }
     }
 
-    function handleData(data: any) {
-        console.log(data);
-    }
 
+    const handleData = (data: any) => {
+        console.log(data)
+
+    }
 
     return (
         <View style={{ flexDirection: 'column', flex: 1 }}>
 
-
-
             <View style={{ backgroundColor: 'red', borderWidth: 0.5, borderColor: 'black', shadowColor: 'black', justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
 
+                <Modal animationType='fade' visible={openModalVideoYT} >
+
+
+                    <View style={{}}>
+                        <Text>{youtubeVideo[0]}</Text>
+                        {playReady && (
+                            <YoutubeIframe
+                                videoId={youtubeVideo[0]}
+                                height={250}
+                                width={250}
+                                play={false}
+                                onReady={() => setPlayReady(true)}
+                            />
+                        )}
+
+                        <View >
+                            <Text style={{ fontSize: 20, fontStyle: 'normal', fontWeight: 'bold' }}>{JSON.stringify(youtubeVideo[1])}</Text>
+                            <Text numberOfLines={5} style={{ flexShrink: 1, flexWrap: 'wrap', marginTop: 10, flexDirection: 'row' }} aria-valuemax={100}>{youtubeVideo[2]}</Text>
+                        </View>
+                        <TouchableOpacity onPress={() => setOpenModalVideoYT(false)}>
+                            <Text>Close Modal</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
                 <View>
                     <TouchableOpacity
-                        onPress={() => { modalFilter }}
+                        onPress={() => { modalFilter() }}
                     >
 
-                        <FontAwesomeIcon icon={faFilter} />
+                        <FontAwesomeIcon icon={faFilter} size={25} />
                     </TouchableOpacity>
-                    <Modal transparent={true} animationType='slide' visible={openModal} style={{ position: 'absolute', minWidth: 100 }}>
 
-                        {/* <View>
-                            <DropDownPicker
-                            items={[]}
-                            />
-                        </View> */}
-
-                    </Modal>
                 </View>
-                <View style={{ margin: 20, borderWidth: 0.5, borderColor: 'black', borderRadius: 10, flexDirection: 'row', backgroundColor: 'white', height: 50, maxWidth: '70%' }}>
-                    <TextInput onChangeText={(text) => txtSearch.current = text} style={{ width: '95%' }} />
+                <View style={{ margin: 20, flexDirection: 'row', backgroundColor: 'red', height: 50, maxWidth: '60%' }}>
 
-                    <TouchableNativeFeedback onPress={() => {
-                        let searchData = '';
-                        if (txtSearch.current)
-                            searchData = txtSearch.current;
-                        console.log(searchData)
-                        if (searchData != '') {
-                            console.log('' + searchData);
-                            setSearchText(searchData);
-                            Keyboard.dismiss();
-                        }
-                    }}
-                        onBlur={() => {
-                            if (txtSearch.current) {
-                                setDeboundSearchText(txtSearch.current);
+                    <TextInput placeholder='Input text for search' value={cleanText}
+                        onChangeText={(text) => { txtSearch.current = text; setCleanText(text) }}
+                        style={{ width: '100%', height: '100%', borderRadius: 15, borderWidth: 1.5, backgroundColor: 'white' }} />
+                    <View style={{ marginLeft: -45, marginRight: 20, alignContent: 'center', justifyContent: 'center' }}>
+                        <TouchableOpacity
+                            onPress={() => { txtSearch.current = '', setCleanText('') }}
+                        >
+
+                            <FontAwesomeIcon icon={faClose} size={30} style={{ color: 'gray', }} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{
+                        marginLeft: -15,
+                        justifyContent: 'center',
+                        backgroundColor: 'gray',
+                        width: 60,
+                        alignItems: 'flex-start',
+                        paddingLeft: 10, height: '100%',
+                        borderBottomRightRadius: 15,
+                        borderTopRightRadius: 15,
+                        borderWidth: 1
+
+                    }}>
+
+                        <TouchableNativeFeedback onPress={() => {
+                            let searchData = '';
+                            if (txtSearch.current)
+                                searchData = txtSearch.current;
+                            console.log(searchData)
+                            if (searchData != '') {
+                                console.log('' + searchData);
+                                setSearchText(searchData);
+                                Keyboard.dismiss();
                             }
                         }}
-                    >
-                        <View style={{ justifyContent: 'center', backgroundColor: 'gray', width: 60, alignItems: 'flex-start', paddingLeft: 10, height: '100%', borderBottomRightRadius: 15, borderTopRightRadius: 15, borderWidth: 0.5, borderColor: 'black' }}>
 
-                            <FontAwesomeIcon icon={faSearch} size={35} color='black' />
-                        </View>
-                    </TouchableNativeFeedback>
+                        >
+
+                            <FontAwesomeIcon icon={faSearch} size={36} color='black' />
+
+                        </TouchableNativeFeedback>
+
+                    </View>
                 </View>
 
 
             </View>
+
             <View style={{ borderWidth: 0.5, margin: 20, borderColor: 'black' }}></View>
+
             <View style={{ flex: 1 }}>
-                <FlatList
+                {<FlatList
                     data={itemYT}
                     renderItem={renderVideo}
                     keyExtractor={(item) => item}
+                    disableVirtualization={true}
 
-                />
+                />}
+
             </View>
-            <Youtubeframe sendDatatoParent={handleData} />
+            <Modal animationType='slide' visible={openModalFilter}>
+
+                {/* <View>
+<DropDownPicker
+items={[]}
+/>
+</View> */}
+                <View style={{ backgroundColor: 'white', padding: 20 }}>
+                    <Text>This is your modal content</Text>
+                    <TouchableOpacity onPress={() => setOpenModalFilter(false)}>
+                        <Text>Close Modal</Text>
+                    </TouchableOpacity>
+                </View>
+
+            </Modal>
         </View>
     )
 }
