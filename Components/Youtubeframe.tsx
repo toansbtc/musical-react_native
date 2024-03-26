@@ -43,7 +43,7 @@ export default function Youtubeframe({ youTube, sendDatatoParent }: any) {
     const [playReady, setPlayReady] = useState(false);
     const [videoId, discription, title, imageLink, channelId, channelTitle] = youTube;
     const { width, height } = Dimensions.get('window');
-    const [imageChanelLink, setImageChannelLink] = useState<string>();
+    const [imageChanelLink, setImageChannelLink] = useState('');
 
     name(channelId).then((data) => { if (data != null) setImageChannelLink(data) });
 
@@ -99,7 +99,7 @@ export default function Youtubeframe({ youTube, sendDatatoParent }: any) {
 
 const loadImageChanel = (imageChanelLink: string) => {
     try {
-        return imageChanelLink !== '' ? { uri: imageChanelLink } : { uri: '' }
+        return imageChanelLink !== '' ? { uri: imageChanelLink } : { uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzYoYuB-6XTjMn2c-tiXfoDOfTW0D6HhJZDnFLrOLMAE7r3R2wjiBs3YLycWO8zHheq78&usqp=CAU' }
     } catch (error) {
         console.error(error);
     }

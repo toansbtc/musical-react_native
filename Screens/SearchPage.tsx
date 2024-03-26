@@ -14,6 +14,7 @@ import { faCancel, faClose, faFilter } from '@fortawesome/free-solid-svg-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ModalFilter, ModalYoutubeVideo } from '../Modal_Component/SearchPage_modal';
 
 
 
@@ -55,21 +56,19 @@ async function onSearch(text?: string): Promise<string[]> {
 
 export default function SearchPage({ navigation }: any) {
     //const date =
+
+    //const { data } = route.params;
+
+    //const [search, setSearch] = useState('');
+    const route = useRoute();
+    const txtSearch = useRef('');
     const [cleanText, setCleanText] = useState('')
     const [itemYT, setItemYT] = useState<Array<string>>();
     const [searchText, setSearchText] = useState('');
-    const [youtubeVideo, setYoutubeVideo] = useState<string[]>([]);
+    const [youtubeVideo, setYoutubeVideo] = useState<string[]>(['']);
 
     const [openModalFilter, setOpenModalFilter] = useState(false);
     const [openModalVideoYT, setOpenModalVideoYT] = useState(false);
-    const [playReady, setPlayReady] = useState(false);
-
-
-
-
-    var data1 = [''];
-
-
 
 
     const getDatafromChild = (data: any) => {
@@ -84,31 +83,20 @@ export default function SearchPage({ navigation }: any) {
             setOpenModalVideoYT(true);
             setYoutubeVideo(data);
             // console.log(typeof data)
-            data1 = data;
-            console.log(data1)
+            //data1 = data;
+
+            //ModalYoutubeVideo.prototype.youtubeVideo = data;
         }
     }
 
     const renderVideo = ({ item }: any) => {
         // console.log('render ' + item);
-
-
         return (
             <Youtubeframe youTube={item} sendDatatoParent={getDatafromChild} />
         )
     }
 
-
-
-
-
-
-
-
-
-
-
-    //useRef(renderVideo);
+    useRef(renderVideo);
 
     useEffect(() => {
         if (searchText !== null && searchText !== '') {
@@ -125,61 +113,23 @@ export default function SearchPage({ navigation }: any) {
         })
     }, [])
 
-    const route = useRoute();
-    const txtSearch = useRef('');
-
-    //const { data } = route.params;
-
-    //const [search, setSearch] = useState('');
 
 
-    const modalFilter = () => {
 
-        if (openModalFilter === false) {
-            setOpenModalFilter(true);
-        }
-    }
-
-
-    const handleData = (data: any) => {
-        console.log(data)
-
-    }
 
     return (
         <View style={{ flexDirection: 'column', flex: 1 }}>
 
             <View style={{ backgroundColor: 'red', borderWidth: 0.5, borderColor: 'black', shadowColor: 'black', justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
 
-                <Modal animationType='fade' visible={openModalVideoYT} >
+                <ModalYoutubeVideo open={openModalVideoYT} setStatus={(data: boolean) => setOpenModalVideoYT(data)} youtubeVideo={youtubeVideo} />
+                <ModalFilter open={openModalFilter} setStatus={(data: any) => setOpenModalFilter(data)} />
 
 
-                    <View style={{}}>
-                        <Text>{youtubeVideo[0]}</Text>
-                        {playReady && (
-                            <YoutubeIframe
-                                videoId={youtubeVideo[0]}
-                                height={250}
-                                width={250}
-                                play={false}
-                                onReady={() => setPlayReady(true)}
-                            />
-                        )}
-
-                        <View >
-                            <Text style={{ fontSize: 20, fontStyle: 'normal', fontWeight: 'bold' }}>{JSON.stringify(youtubeVideo[1])}</Text>
-                            <Text numberOfLines={5} style={{ flexShrink: 1, flexWrap: 'wrap', marginTop: 10, flexDirection: 'row' }} aria-valuemax={100}>{youtubeVideo[2]}</Text>
-                        </View>
-                        <TouchableOpacity onPress={() => setOpenModalVideoYT(false)}>
-                            <Text>Close Modal</Text>
-                        </TouchableOpacity>
-                    </View>
-                </Modal>
                 <View>
                     <TouchableOpacity
-                        onPress={() => { modalFilter() }}
+                        onPress={() => setOpenModalFilter(true)}
                     >
-
                         <FontAwesomeIcon icon={faFilter} size={25} />
                     </TouchableOpacity>
 
@@ -210,23 +160,19 @@ export default function SearchPage({ navigation }: any) {
 
                     }}>
 
-                        <TouchableNativeFeedback onPress={() => {
+                        <TouchableOpacity onPress={() => {
                             let searchData = '';
                             if (txtSearch.current)
                                 searchData = txtSearch.current;
-                            console.log(searchData)
+                            console.log('data' + searchData)
                             if (searchData != '') {
                                 console.log('' + searchData);
                                 setSearchText(searchData);
                                 Keyboard.dismiss();
                             }
-                        }}
-
-                        >
-
+                        }}>
                             <FontAwesomeIcon icon={faSearch} size={36} color='black' />
-
-                        </TouchableNativeFeedback>
+                        </TouchableOpacity>
 
                     </View>
                 </View>
@@ -246,21 +192,9 @@ export default function SearchPage({ navigation }: any) {
                 />}
 
             </View>
-            <Modal animationType='slide' visible={openModalFilter}>
 
-                {/* <View>
-<DropDownPicker
-items={[]}
-/>
-</View> */}
-                <View style={{ backgroundColor: 'white', padding: 20 }}>
-                    <Text>This is your modal content</Text>
-                    <TouchableOpacity onPress={() => setOpenModalFilter(false)}>
-                        <Text>Close Modal</Text>
-                    </TouchableOpacity>
-                </View>
-
-            </Modal>
         </View>
     )
 }
+
+
