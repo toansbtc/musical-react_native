@@ -1,4 +1,9 @@
 {
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
+  },
   "name": "AwesomeProject",
   "version": "0.0.1",
   "private": true,
@@ -19,13 +24,19 @@
     "@react-navigation/drawer": "^6.6.6",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "express": "^4.19.2",
+    "path": "^0.12.7",
+    "querystring": "^0.2.1",
     "react": "18.2.0",
     "react-native": "0.73.2",
     "react-native-dotenv": "^3.4.11",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-fontawesome": "^7.0.0",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.9.0",
     "react-native-google-signin": "^2.1.1",
+    "react-native-http": "^0.0.3",
     "react-native-modal": "^13.0.1",
     "react-native-reanimated": "^3.6.2",
     "react-native-safe-area-context": "^4.8.2",
@@ -34,7 +45,11 @@
     "react-native-vector-icons": "^10.0.3",
     "react-native-webview": "^13.8.1",
     "react-native-youtube-iframe": "^2.3.0",
-    "use-debounce": "^10.0.0"
+    "stream": "^0.0.2",
+    "timers": "^0.1.1",
+    "use-debounce": "^10.0.0",
+    "vm": "^0.1.0",
+    "youtube-audio-downloader": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -44,6 +59,7 @@
     "@react-native/eslint-config": "0.73.2",
     "@react-native/metro-config": "0.73.3",
     "@react-native/typescript-config": "0.73.1",
+    "@types/node": "^20.12.5",
     "@types/react": "^18.2.6",
     "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^18.0.0",

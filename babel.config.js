@@ -12,5 +12,20 @@ module.exports = {
       "verbose": false
     }],
 
+    [
+      'module-resolver',
+      {
+        root: ['./node_modules'],
+        extensions: [
+          '.ios.js',
+          '.android.js',
+          '.js',
+          '.jsx',
+          '.json',
+          '.ts',
+          '.tsx',
+        ],
+      },
+    ],
   ]
 };

@@ -1,7 +1,7 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Text, View, DrawerLayoutAndroid, FlatList, TouchableOpacity, Image, Touchable, TouchableHighlightBase, TouchableNativeFeedback, Keyboard, TouchableOpacityBase, Modal } from 'react-native'
+import { Button, Text, View, DrawerLayoutAndroid, FlatList, TouchableOpacity, Image, Touchable, TouchableHighlightBase, TouchableNativeFeedback, Keyboard, TouchableOpacityBase, Modal, ActivityIndicator } from 'react-native'
 import Home from './Home';
 import { Search, popularList } from '../API/APIYouTube';
 import Youtubeframe from '../Components/Youtubeframe';
@@ -18,40 +18,40 @@ import { ModalFilter, ModalYoutubeVideo } from '../Modal_Component/SearchPage_mo
 
 
 
-
-async function onSearch(text?: string): Promise<string[]> {
+async function onSearch(text?: string, totalVideo: string = '10', regionCode: string = 'VN'): Promise<string[]> {
     const arrayVideo: any[] = [];
     let dataSearch: () => Promise<any>;
     if (typeof text === 'string') {
-        dataSearch = Search(text);
+        dataSearch = Search(text, totalVideo, regionCode);
     }
     else {
-        dataSearch = popularList();
+        dataSearch = popularList(totalVideo, regionCode);
 
     }
     try {
-        // dataSearch().then((data) => {
-        //console.log(data);
+
+
         const data = await dataSearch();
-        if (data.items != null)
-            for (let i = 0; i < Array(data.items)[0].length; i++) {
-                arrayVideo.push([data.items[i].id.videoId,
-                data.items[i].snippet.description,
-                data.items[i].snippet.title,
-                data.items[i].snippet.thumbnails.high.url,
-                data.items[i].snippet.channelId,
-                data.items[i].snippet.channelTitle]);
+        if (data.items != null) {
+            for (let i = 0; i < Array(data.items)[0].length; i++)
+                if (data.items[i].snippet.channelTitle !== "TRENDING") {
+                    arrayVideo.push([data.items[i].id.videoId,
+                    data.items[i].snippet.description,
+                    data.items[i].snippet.title,
+                    data.items[i].snippet.thumbnails.high.url,
+                    data.items[i].snippet.channelId,
+                    data.items[i].snippet.channelTitle]);
 
-            }
-        // })
+                }
+            // })
 
+        }
     } catch (error) {
         console.error(error);
         return [] as string[]
     }
     return arrayVideo as string[];
 }
-
 
 
 export default function SearchPage({ navigation }: any) {
@@ -66,14 +66,19 @@ export default function SearchPage({ navigation }: any) {
     const [itemYT, setItemYT] = useState<Array<string>>();
     const [searchText, setSearchText] = useState('');
     const [youtubeVideo, setYoutubeVideo] = useState<string[]>(['']);
+    const [totalVideo, setTotalVideo] = useState('10');
+    const [regionCode, setRegionCode] = useState('vn');
+    const [pageNumber, setPageNumber] = useState(1);
+
 
     const [openModalFilter, setOpenModalFilter] = useState(false);
     const [openModalVideoYT, setOpenModalVideoYT] = useState(false);
+    const [loading, setLoading] = useState(false);
 
 
     const getDatafromChild = (data: any) => {
         if (typeof data === 'string') {
-            onSearch(data).then((item) => {
+            onSearch(data, totalVideo, regionCode).then((item) => {
                 setItemYT(item);
             })
             //console.log('id chanel' + data);
@@ -84,8 +89,6 @@ export default function SearchPage({ navigation }: any) {
             setYoutubeVideo(data);
             // console.log(typeof data)
             //data1 = data;
-
-            //ModalYoutubeVideo.prototype.youtubeVideo = data;
         }
     }
 
@@ -100,7 +103,7 @@ export default function SearchPage({ navigation }: any) {
 
     useEffect(() => {
         if (searchText !== null && searchText !== '') {
-            onSearch(searchText).then((data) => {
+            onSearch(searchText, totalVideo, regionCode).then((data) => {
                 setItemYT(data);
             })
         }
@@ -108,7 +111,7 @@ export default function SearchPage({ navigation }: any) {
 
     useEffect(() => {
 
-        onSearch().then((data) => {
+        onSearch(undefined, totalVideo, regionCode).then((data) => {
             setItemYT(data)
         })
     }, [])
@@ -116,6 +119,10 @@ export default function SearchPage({ navigation }: any) {
 
 
 
+
+    function loadMoreVideo(): void {
+        console.log('load more')
+    }
 
     return (
         <View style={{ flexDirection: 'column', flex: 1 }}>
@@ -184,10 +191,18 @@ export default function SearchPage({ navigation }: any) {
 
             <View style={{ flex: 1 }}>
                 {<FlatList
+                    inverted
                     data={itemYT}
                     renderItem={renderVideo}
                     keyExtractor={(item) => item}
                     disableVirtualization={true}
+                    onEndReached={() => loadMoreVideo()}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={
+                        loading ? (
+                            <ActivityIndicator />
+                        ) : null
+                    }
 
                 />}
 

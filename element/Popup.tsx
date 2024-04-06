@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 
-const Popup = ({ title, message, onConfirm, onCancel }) => {
+const Popup = ({ title, message, onConfirm, onCancel }: any) => {
     const [isVisible, setIsVisible] = React.useState(false);
 
     const handleConfirm = () => {
