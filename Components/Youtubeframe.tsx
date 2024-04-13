@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { View, Image, StyleSheet, Text, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
-// import { API_Key } from '../API/APIYouTube'
+//import { API_Key } from '../API/APIYouTube'
 import { API_Key } from '@env';
+// import dotenv from 'dotenv';
+// dotenv.config();
 
+
+// const API_Key = process.env.API_Key;
 
 async function name(channelId: string) {
     try {

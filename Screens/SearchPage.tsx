@@ -9,16 +9,14 @@ import { TextInput } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import Footer from '../Components/Footer';
-import { useDebounce } from 'use-debounce';
 import { faCancel, faClose, faFilter } from '@fortawesome/free-solid-svg-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { ModalFilter, ModalYoutubeVideo } from '../Modal_Component/SearchPage_modal';
 
 
 
-async function onSearch(text?: string, totalVideo: string = '10', regionCode: string = 'VN'): Promise<string[]> {
+async function onSearch(text?: string | undefined, totalVideo: string = '10', regionCode: string = 'VN'): Promise<string[]> {
     const arrayVideo: any[] = [];
     let dataSearch: () => Promise<any>;
     if (typeof text === 'string') {

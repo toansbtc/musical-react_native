@@ -5,7 +5,7 @@ import { Button, Image, ImageBackground, Modal, SafeAreaView, Text, TextInput, T
 import styleLogin from '../asset/style.login'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Dasboard from './Dasboard';
-import Popup from '../element/Popup';
+import Popup from '../Modal_Component/Popup';
 import ImageBG from '../asset/image/background.jpg';
 import { NavigationContainer, NavigationContext } from '@react-navigation/native';
 import Home from './Home';

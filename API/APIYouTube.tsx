@@ -1,15 +1,21 @@
 import { text } from "@fortawesome/fontawesome-svg-core";
 import { useState } from "react"
 import React from 'react'
-import audioDownload from 'youtube-audio-downloader'
 import RNFS from 'react-native-fs'
-//import { API_Key } from '@env';
+import { API_Key } from '@env';
 import { PermissionsAndroid } from "react-native";
+import useDownloader from 'react-use-downloader'
+import { error } from "console";
+// import dotenv from 'dotenv';
+// dotenv.config();
+
+
+// const API_Key = process.env.API_Key;
 
 
 
 
-export const API_Key = 'AIzaSyDravj7da6nwaeH8iI_tQolnEX7db4cMcQ'
+//export const API_Key = 'AIzaSyDravj7da6nwaeH8iI_tQolnEX7db4cMcQ'
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/search';
 const VIDEO_URL = 'https://www.youtube.com/watch?v=';
 const PART = 'snippet';
@@ -58,45 +64,46 @@ export function popularList(MAX_RESULTS: string, regionCode: string = 'VN'): () 
 }
 
 
-export function downloadMusic(videoID: string, fileName: string): () => Promise<any> {
+export function downloadMusic(videoID: string, fileName: string) {
     const youtubeVideoUrl = VIDEO_URL + videoID;
-    // const externalDiretory = RNFS.ExternalDirectoryPath;
-    // const externalStorage = RNFS.ExternalStorageDirectoryPath;
+    const externalDiretory = RNFS.ExternalDirectoryPath;
+    const externalStorage = RNFS.ExternalStorageDirectoryPath;
 
-    const object = {
-        output: RNFS.ExternalStorageDirectoryPath,
-        filename: fileName,
-        link: youtubeVideoUrl
-    }
+    // const object = {
+    //     output: RNFS.ExternalStorageDirectoryPath,
+    //     filename: fileName,
+    //     link: youtubeVideoUrl
+    // }
 
-    console.log(object.output);
-    return async function name() {
+    // console.log(object.output);
+    const grand = PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+            'title': 'Storage Read Permission',
+            'message': 'App needs access to your storage to function properly.',
+            'buttonNeutral': 'Ask Me Later',
+            'buttonNegative': 'Cancel',
+            'buttonPositive': 'OK'
+        }
+    );
+
+
+
+    const data = async () => {
+        console.log("in here3")
         try {
-            const grand = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                {
-                    'title': 'Storage Read Permission',
-                    'message': 'App needs access to your storage to function properly.',
-                    'buttonNeutral': 'Ask Me Later',
-                    'buttonNegative': 'Cancel',
-                    'buttonPositive': 'OK'
-                }
-            );
-            if (grand === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log("in here 2")
 
-                //console.log(externalDiretory + '------' + externalStorage);
+            const { size, elapsed, percentage, download, cancel, error, isInProgress } = useDownloader();
+            await download(youtubeVideoUrl, fileName).then((data) => {
+                console.log(data)
+            }).catch((error) => console.error(error));
 
-
-                const audio = await audioDownload(object);
-                console.log(audio);
-                return audio;
-            }
-            else {
-
-            }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
+
+
 }
 
 

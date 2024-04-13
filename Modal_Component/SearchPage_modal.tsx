@@ -13,19 +13,9 @@ export function ModalYoutubeVideo({ youtubeVideo, open, setStatus }: any) {
     let [openModal, setOpenModal] = useState(false);
     let [videoId, discription, title, imageLink, channelId, channelTitle] = ['', '', '', '', '', ''];
 
-    // async function name() {
-    //     const dataJson = await downloadMusic(videoId, title);
-    //     // const data=dataJson.j
-    // }
-
-    // // // console.log('yt ' + open);
-    // // // console.log("open model yt" + openModal);
-    // // //console.log(youtubeVideo);
-    // name();
     if (typeof youtubeVideo !== 'undefined')
         [videoId, discription, title, imageLink, channelId, channelTitle] = youtubeVideo;
     useEffect(() => { setOpenModal(open) }, [open]);
-    console.log('video id  ' + videoId);
     return (
         <Modal animationType='fade' visible={openModal} >
 
