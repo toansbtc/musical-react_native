@@ -1,7 +1,7 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Text, View, DrawerLayoutAndroid, FlatList, TouchableOpacity, Image, Touchable, TouchableHighlightBase, TouchableNativeFeedback, Keyboard, TouchableOpacityBase, Modal, ActivityIndicator } from 'react-native'
+import { Button, Text, View, DrawerLayoutAndroid, FlatList, TouchableOpacity, Image, Touchable, TouchableHighlightBase, TouchableNativeFeedback, Keyboard, TouchableOpacityBase, Modal, ActivityIndicator, LayoutChangeEvent, StyleSheet } from 'react-native'
 import Home from './Home';
 import { Search, popularList } from '../API/APIYouTube';
 import Youtubeframe from '../Components/Youtubeframe';
@@ -9,11 +9,16 @@ import { TextInput } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import Footer from '../Components/Footer';
-import { faCancel, faClose, faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faCancel, faClose, faFilter } from '@fortawesome/free-solid-svg-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import { ModalFilter, ModalYoutubeVideo } from '../Modal_Component/SearchPage_modal';
+import { GestureHandlerRootView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
+
+interface dataPaging {
+    [key: number]: string[],
+}
 
 
 async function onSearch(text?: string | undefined, totalVideo: string = '10', regionCode: string = 'VN'): Promise<string[]> {
@@ -32,15 +37,15 @@ async function onSearch(text?: string | undefined, totalVideo: string = '10', re
         const data = await dataSearch();
         if (data.items != null) {
             for (let i = 0; i < Array(data.items)[0].length; i++)
-                if (data.items[i].snippet.channelTitle !== "TRENDING") {
-                    arrayVideo.push([data.items[i].id.videoId,
-                    data.items[i].snippet.description,
-                    data.items[i].snippet.title,
-                    data.items[i].snippet.thumbnails.high.url,
-                    data.items[i].snippet.channelId,
-                    data.items[i].snippet.channelTitle]);
+                //if (data.items[i].snippet.channelTitle !== "TRENDING") {
+                arrayVideo.push([data.items[i].id.videoId,
+                data.items[i].snippet.description,
+                data.items[i].snippet.title,
+                data.items[i].snippet.thumbnails.high.url,
+                data.items[i].snippet.channelId,
+                data.items[i].snippet.channelTitle]);
 
-                }
+            //}
             // })
 
         }
@@ -58,15 +63,21 @@ export default function SearchPage({ navigation }: any) {
     //const { data } = route.params;
 
     //const [search, setSearch] = useState('');
+    const flatlistRef = useRef<FlatList>(null);
+
+
     const route = useRoute();
     const txtSearch = useRef('');
+    const [visibleScroll, setVisibleScroll] = useState(false);
     const [cleanText, setCleanText] = useState('')
-    const [itemYT, setItemYT] = useState<Array<string>>();
+    const [allItemYT, setAllItemYT] = useState<dataPaging>([]);
+    const [itemYT, setItemYT] = useState<Array<string>>([]);
     const [searchText, setSearchText] = useState('');
     const [youtubeVideo, setYoutubeVideo] = useState<string[]>(['']);
-    const [totalVideo, setTotalVideo] = useState('10');
+    const [totalVideo, setTotalVideo] = useState('50');
     const [regionCode, setRegionCode] = useState('vn');
-    const [pageNumber, setPageNumber] = useState(1);
+    let [pageNumber, setPageNumber] = useState(0);
+    const [totalPage, setTotalPage] = useState(0);
 
 
     const [openModalFilter, setOpenModalFilter] = useState(false);
@@ -91,7 +102,7 @@ export default function SearchPage({ navigation }: any) {
     }
 
     const renderVideo = ({ item }: any) => {
-        // console.log('render ' + item);
+        //console.log('render ' + item);
         return (
             <Youtubeframe youTube={item} sendDatatoParent={getDatafromChild} />
         )
@@ -99,28 +110,86 @@ export default function SearchPage({ navigation }: any) {
 
     useRef(renderVideo);
 
-    useEffect(() => {
+    const renderTextSearch = () => {
         if (searchText !== null && searchText !== '') {
             onSearch(searchText, totalVideo, regionCode).then((data) => {
-                setItemYT(data);
+                const item = pagePaging(data);
+                setPageNumber(0)
+                setAllItemYT(item);
+                setItemYT(item[pageNumber]);
+                flatlistRef.current?.scrollToOffset({ animated: false, offset: 0 });
             })
+            console.log("renderTextSearch");
         }
-    }, [searchText]);
+    };
 
-    useEffect(() => {
+    useEffect(() => { renderTextSearch() }, [searchText]);
+
+    const renderPopularVideo = () => {
 
         onSearch(undefined, totalVideo, regionCode).then((data) => {
-            setItemYT(data)
+            const item = pagePaging(data);
+            setPageNumber(0);
+            setAllItemYT(item);
+            setItemYT(item[pageNumber]);
+            // console.log(allItemYT);
+            // console.log(itemYT);
+            console.log("renderPopularVideo");
         })
-    }, [])
+    }
+    useEffect(() => { renderPopularVideo() }, []);
+
+    const pagePaging = (data: any) => {
 
 
 
 
+        let itemData: string[] = [];
+        let returnData: dataPaging = [];
+        if (data.length % 10 === 0)
+            setTotalPage(Math.trunc(data.length / 10) - 1);
+        else
+            setTotalPage(Math.trunc(data.length / 10));
 
-    function loadMoreVideo(): void {
+        console.log('total page: ' + totalPage);
+        for (let i = 0; i < data.length; i += 1) {
+            {
+
+                itemData.push(data[i]);
+                if (i % 10 === 0 && i != 0) {
+                    returnData[i / 10 - 1] = (itemData.slice());
+                    itemData = [];
+                }
+            }
+        }
+        return returnData;
+    }
+
+
+
+
+    /**
+     * 
+     */
+    // function loadMoreVideo() {
+    const onEndReached = () => {
+
+        if (pageNumber < totalPage) {
+
+            setPageNumber(pageNumber += 1);
+            const newData: string[] = allItemYT[pageNumber] ?? [];
+            setItemYT(prevData => [...prevData, ...newData]);
+
+        }
         console.log('load more')
     }
+
+    const goToTop = () => {
+        flatlistRef.current?.scrollToOffset({ animated: true, offset: 0 })
+    }
+
+
+
 
     return (
         <View style={{ flexDirection: 'column', flex: 1 }}>
@@ -128,7 +197,17 @@ export default function SearchPage({ navigation }: any) {
             <View style={{ backgroundColor: 'red', borderWidth: 0.5, borderColor: 'black', shadowColor: 'black', justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
 
                 <ModalYoutubeVideo open={openModalVideoYT} setStatus={(data: boolean) => setOpenModalVideoYT(data)} youtubeVideo={youtubeVideo} />
-                <ModalFilter open={openModalFilter} setStatus={(data: any) => setOpenModalFilter(data)} />
+                <ModalFilter open={openModalFilter} setStatus={(data: any) => setOpenModalFilter(data)}
+                    dataFilter={(data) => {
+                        const { data1, data2 } = data;
+                        setTotalVideo(data1);
+                        setRegionCode(data2);
+                        if (searchText != '')
+                            renderTextSearch();
+                        else
+                            renderPopularVideo();
+                        console.log(regionCode + totalVideo)
+                    }} />
 
 
                 <View>
@@ -189,13 +268,17 @@ export default function SearchPage({ navigation }: any) {
 
             <View style={{ flex: 1 }}>
                 {<FlatList
-                    inverted
                     data={itemYT}
+                    ref={flatlistRef}
                     renderItem={renderVideo}
-                    keyExtractor={(item) => item}
+                    // keyExtractor={(item) => item[0]}
                     disableVirtualization={true}
-                    onEndReached={() => loadMoreVideo()}
-                    onEndReachedThreshold={0.5}
+                    onEndReached={() => onEndReached()}
+                    onEndReachedThreshold={0.01}
+                    onScroll={(event) => {
+                        const { contentOffset } = event.nativeEvent;
+                        contentOffset.y > 500 ? setVisibleScroll(true) : setVisibleScroll(false);
+                    }}
                     ListFooterComponent={
                         loading ? (
                             <ActivityIndicator />
@@ -203,11 +286,14 @@ export default function SearchPage({ navigation }: any) {
                     }
 
                 />}
-
+                <GestureHandlerRootView style={{ position: 'absolute', marginTop: '100%', marginLeft: '90%' }}>
+                    {visibleScroll &&
+                        (<TouchableWithoutFeedback onPress={() => goToTop()} >
+                            <FontAwesomeIcon icon={faArrowUp} size={40} style={{ backgroundColor: 'red' }} />
+                        </TouchableWithoutFeedback>)}
+                </GestureHandlerRootView>
             </View>
 
         </View>
     )
 }
-
-

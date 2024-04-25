@@ -41,7 +41,7 @@ export default function Footer({ navigation }: any) {
         <View style={style.footer}>
 
 
-            <TouchableOpacity onPress={() => navigation.navigate("")} style={style.icon}>
+            <TouchableOpacity onPress={() => navigation.navigate("redux")} style={style.icon}>
                 <FontAwesomeIcon icon={faList} color='#df1717' />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("SearchPage")} style={style.icon}>

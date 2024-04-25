@@ -1,6 +1,7 @@
+import React from "react";
 import { Button, Text, View } from "react-native";
 
-const Modal = ({ title, messenge, animation, isvisible }) => {
+const Modal = ({ title, messenge, animation, isvisible }: any) => {
     return (
         <View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
             <Text>{title}</Text>

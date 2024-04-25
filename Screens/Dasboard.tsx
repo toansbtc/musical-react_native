@@ -7,6 +7,10 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import Home from './Home';
 import SearchPage from './SearchPage';
 import LoginScreen from './LoginScreen';
+import { Provider } from 'react-redux';
+import Store from './Redux/Store';
+import Redux from './Redux/Redux';
+import NewRedux from './Redux/NewRedux';
 
 export default function Dasboard() {
     const [username, setusername] = useState("");
@@ -49,25 +53,34 @@ export default function Dasboard() {
         //     <View style={{ flex: 1, width: '100%', }}></View>
         // </SafeAreaView>
 
+        <Provider store={Store}>
 
-        <NavigationContainer >
-            <Stack.Navigator initialRouteName='Home'>
-                <Stack.Screen
-                    name='Home'
-                    component={Home}
-                    options={{ title: 'Home page', headerShown: false }} />
-                <Stack.Screen
-                    name='Login'
-                    component={LoginScreen}
-                    options={{ title: 'Login page', headerShown: false }} />
-                <Stack.Screen
-                    name='SearchPage'
-                    component={SearchPage}
-                    options={{ title: 'Search Page' }} />
-            </Stack.Navigator>
+            <NavigationContainer >
+                <Stack.Navigator initialRouteName='Home'>
+                    <Stack.Screen
+                        name='home'
+                        component={Home}
+                        options={{ title: 'Home page', headerShown: false }} />
+                    <Stack.Screen
+                        name='redux'
+                        component={Redux}
+                        options={{ title: 'test redux', headerShown: false }} />
+                    <Stack.Screen
+                        name='newredux'
+                        component={NewRedux}
+                        options={{ title: 'test redux', headerShown: false }} />
+                    <Stack.Screen
+                        name='Login'
+                        component={LoginScreen}
+                        options={{ title: 'Login page', headerShown: false }} />
+                    <Stack.Screen
+                        name='SearchPage'
+                        component={SearchPage}
+                        options={{ title: 'Search Page' }} />
+                </Stack.Navigator>
 
-        </NavigationContainer>
-
+            </NavigationContainer>
+        </Provider>
 
     )
 }
