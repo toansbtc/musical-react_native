@@ -3,7 +3,6 @@ import { Alert, Button, SafeAreaView, TextInput, View } from 'react-native'
 import style from '../asset/style.dasboard'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import Home from './Home';
 import SearchPage from './SearchPage';
 import LoginScreen from './LoginScreen';
@@ -11,10 +10,20 @@ import { Provider } from 'react-redux';
 import Store from './Redux/Store';
 import Redux from './Redux/Redux';
 import NewRedux from './Redux/NewRedux';
+import { requestPermission } from '../src/permission/permission';
+import PlaySound from './PlaySound';
+import PlaySound_modal from '../Modal_Component/PlaySound_modal';
+import { SoundProvide } from '../Components/soundProvide';
+
+
+
+
 
 export default function Dasboard() {
     const [username, setusername] = useState("");
     const [pass, setpass] = useState("");
+    const [playSoundPopup, setPlaySoundPopup] = useState(false);
+    const [dataSong, setDataSong] = useState([]);
 
     async function checklogin() {
         const dataJson = await fetch("http://5.1.182.118:8080/QAMWebService/webapi/user/login", {
@@ -40,7 +49,24 @@ export default function Dasboard() {
     }
 
     const Stack = createNativeStackNavigator();
-    const Drawer = createDrawerNavigator();
+    // const Drawer = createDrawerNavigator();
+
+    requestPermission();
+
+
+
+    function handleOpenPopup(file) {
+        console.log("handle open file");
+        console.log(playSoundPopup == false)
+        if (playSoundPopup == false)
+            setPlaySoundPopup(true)
+        console.log(playSoundPopup)
+        setDataSong(file);
+    }
+
+    function closePopup(option: boolean) {
+        setPlaySoundPopup(option);
+    }
 
     return (
         // <SafeAreaView style={style.container}>
@@ -54,32 +80,41 @@ export default function Dasboard() {
         // </SafeAreaView>
 
         <Provider store={Store}>
+            <SoundProvide>
 
-            <NavigationContainer >
-                <Stack.Navigator initialRouteName='Home'>
-                    <Stack.Screen
-                        name='home'
-                        component={Home}
-                        options={{ title: 'Home page', headerShown: false }} />
-                    <Stack.Screen
-                        name='redux'
-                        component={Redux}
-                        options={{ title: 'test redux', headerShown: false }} />
-                    <Stack.Screen
-                        name='newredux'
-                        component={NewRedux}
-                        options={{ title: 'test redux', headerShown: false }} />
-                    <Stack.Screen
-                        name='Login'
-                        component={LoginScreen}
-                        options={{ title: 'Login page', headerShown: false }} />
-                    <Stack.Screen
-                        name='SearchPage'
-                        component={SearchPage}
-                        options={{ title: 'Search Page' }} />
-                </Stack.Navigator>
-
-            </NavigationContainer>
+                <NavigationContainer >
+                    <Stack.Navigator initialRouteName='Home'>
+                        <Stack.Screen
+                            name='home'
+                            component={Home}
+                            //initialParams={{ handleOpenPopup: handleOpenPopup }}
+                            options={{ title: 'Home page', headerShown: false }} >
+                            {/* {() => <Home handleOpenPopup={handleOpenPopup} />} */}
+                        </Stack.Screen>
+                        <Stack.Screen
+                            name='redux'
+                            component={Redux}
+                            options={{ title: 'test redux', headerShown: false }} />
+                        <Stack.Screen
+                            name='newredux'
+                            component={NewRedux}
+                            options={{ title: 'test redux', headerShown: false }} />
+                        <Stack.Screen
+                            name='Login'
+                            component={LoginScreen}
+                            options={{ title: 'Login page', headerShown: false }} />
+                        <Stack.Screen
+                            name='SearchPage'
+                            component={SearchPage}
+                            options={{ title: 'Search Page', headerShown: false }} />
+                        <Stack.Screen
+                            name='PlaySound'
+                            component={PlaySound}
+                            options={{ title: 'Play Sound Track', headerShown: false, animation: "fade_from_bottom" }} />
+                    </Stack.Navigator>
+                    <PlaySound_modal visible={playSoundPopup} dataSong={dataSong} onclose={closePopup} />
+                </NavigationContainer>
+            </SoundProvide>
         </Provider>
 
     )

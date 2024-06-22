@@ -4,39 +4,17 @@ import { PermissionsAndroid, Platform, StyleSheet, TouchableOpacity, View } from
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faAddressBook, faDownload, faHome, faList } from '@fortawesome/free-solid-svg-icons';
+import { faAddressBook, faDownload, faHome, faList, faMusic } from '@fortawesome/free-solid-svg-icons';
 import { width } from '@fortawesome/free-brands-svg-icons/faCcVisa';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
-import { Search } from '../API/APIYouTube'
+import { Search } from '../src/network/APIYouTube'
 import SearchPage from '../Screens/SearchPage';
 
-const permission = async () => {
-    console.log('running');
-    if (Platform.OS === "android") {
-        try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.CAMERA,
-                {
-                    title: 'Camera Permission',
-                    message: 'App needs access to your camera',
-                    buttonNeutral: 'Ask Me Later',
-                    buttonNegative: 'Cancel',
-                    buttonPositive: 'OK',
-                }
-            );
 
-            if (granted === PermissionsAndroid.RESULTS.denied)
-                console.log('ok')
-        } catch (error) {
-            console.error(error)
-        }
-    }
-}
 
 export default function Footer({ navigation }: any) {
 
-    permission();
-
+    const item: any[] = ["", "", "footer"];
     return (
         <View style={style.footer}>
 
@@ -49,13 +27,13 @@ export default function Footer({ navigation }: any) {
             </TouchableOpacity>
 
             <View style={style.circle}>
-                <TouchableOpacity onPress={() => navigation.navigate("")} style={style.home}>
+                <TouchableOpacity onPress={() => navigation.navigate("home")} style={style.home}>
                     <FontAwesomeIcon icon={faHome} size={40} color='#e6d713' style={{ alignSelf: 'center' }} />
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate("")} style={style.icon} >
-                <FontAwesomeIcon icon={faDownload} color='#df1717' />
+            <TouchableOpacity onPress={() => navigation.navigate("PlaySound", { item })} style={style.icon} >
+                <FontAwesomeIcon icon={faMusic} color='#df1717' />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("")} style={style.icon}>
                 <FontAwesomeIcon icon={faAddressBook} color='#df1717' />
@@ -67,8 +45,8 @@ export default function Footer({ navigation }: any) {
 const style = StyleSheet.create({
     footer: {
         width: '100%',
-        backgroundColor: '#e476bf',
-        shadowColor: '#3b0c0c',
+        backgroundColor: '#1d1b1c',
+        shadowColor: '#942222',
         shadowOffset: {
             width: 4,
             height: 4

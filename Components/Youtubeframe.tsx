@@ -2,25 +2,33 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { View, Image, StyleSheet, Text, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
 //import { API_Key } from '../API/APIYouTube'
-import { API_Key } from '@env';
+//import { API_Key } from '@env';
+import { useSelector } from 'react-redux';
+import store, { RootState } from '../Screens/Redux/Store';
+import getAPI_KEY from '../Screens/Redux/getRedux';
 // import dotenv from 'dotenv';
 // dotenv.config();
 
 
 // const API_Key = process.env.API_Key;
-
+const YT_KEY = getAPI_KEY(store);
 async function name(channelId: string) {
     try {
 
-        const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings&id=${channelId}&key=${API_Key}`;
-        const response = await fetch(url);
+        if (YT_KEY !== undefined) {
+            const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,brandingSettings&id=${channelId}&key=${YT_KEY}`;
+            const response = await fetch(url);
 
-        const data = await response.json();
+            const data = await response.json();
 
-        // console.log(url)
-        // console.log(data.items[0].snippet.thumbnails.default.url);
+            // console.log(url)
+            // console.log(data.items[0].snippet.thumbnails.default.url);
 
-        return data.items[0].snippet.thumbnails.default.url;
+            return data.items[0].snippet.thumbnails.default.url;
+        }
+        else {
+            console.log(` is null`)
+        }
     } catch (error) {
 
     }
@@ -37,7 +45,6 @@ const setDisplayTitle = (title: string): string => {
     if (array.length > 10)
         data += ' ...'
     return data
-
 
 }
 

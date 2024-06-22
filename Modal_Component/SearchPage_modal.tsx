@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, View, Text, TouchableOpacity, Image, Dimensions } from "react-native";
 import YoutubeIframe from "react-native-youtube-iframe";
-import { downloadMusic } from "../API/APIYouTube";
+import { downloadMusic } from "../src/network/APIYouTube";
 import DropDownPicker, { ItemType } from "react-native-dropdown-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
@@ -59,6 +59,7 @@ interface CustomItemType extends ItemType<string> {
 }
 
 export function ModalFilter({ open, setStatus, dataFilter }: any) {
+    const { height, width } = Dimensions.get('screen');
     const [openFilter, setOpenFilter] = useState(false);
     const [openPickerVideo, setOpenPickerVideo] = useState(false);
     const [openPickerRegion, setOpenPickerRegion] = useState(false);
@@ -80,6 +81,8 @@ export function ModalFilter({ open, setStatus, dataFilter }: any) {
     // console.log('poen filter' + open);
     // console.log("open model filter" + openFilter);
     useEffect(() => { setOpenFilter(open) }, [open]);
+    useEffect(() => {
+    }, [height | width]);
     return (
 
         <Modal animationType='slide' visible={openFilter} transparent={true}>
@@ -89,7 +92,8 @@ export function ModalFilter({ open, setStatus, dataFilter }: any) {
                 flex: 1,
                 backgroundColor: 'rgba(128, 128, 128, 0.5)'
             }}>
-                <View style={{ height: 155 }}></View>
+                {height > width ? <View style={{ height: 155 }}></View> : <View style={{ height: 155 }}></View>}
+
                 <View style={{ backgroundColor: 'white', borderWidth: 1, borderRadius: 10, flex: 1 }}>
                     <View style={{ marginLeft: '87%', position: 'absolute' }}>
                         <TouchableOpacity onPress={() => setStatus(false)} style={{ marginLeft: 50 }}>
@@ -135,7 +139,7 @@ export function ModalFilter({ open, setStatus, dataFilter }: any) {
                         </View>
                     </View>
 
-                    <View style={{ flexDirection: 'row', marginTop: '30%', width: '100%', alignContent: 'center', justifyContent: 'center' }}>
+                    <View style={{ flexDirection: 'row', marginTop: '20%', width: '100%', alignContent: 'center', justifyContent: 'center' }}>
                         <TouchableOpacity onPress={() => {
                             setStatus(false);
                             dataFilter(valueTotalVideo, valueRegion);
@@ -149,7 +153,6 @@ export function ModalFilter({ open, setStatus, dataFilter }: any) {
                     </View>
 
                 </View>
-                <View style={{ height: 500 }}></View>
             </View>
 
         </Modal >

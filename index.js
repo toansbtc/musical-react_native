@@ -8,3 +8,4 @@ import { name as appName } from './app.json';
 import Dasboard from './Screens/Dasboard';
 
 AppRegistry.registerComponent(appName, () => Dasboard);
+// AppRegistry.registerComponent("AwesomeProject", () => Dasboard);

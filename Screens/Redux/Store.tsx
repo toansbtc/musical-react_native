@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterRedux from './ReduxSlice'
+import counterRedux from './redux_API_Slice'
 import { useSelector } from "react-redux";
+import playSoundRedux from "./redux_PlaySound_Slide";
 
 const store = configureStore({
     reducer: {
-        counter: counterRedux,
+        API: counterRedux,
+        playSound: playSoundRedux
     }
 })
 

@@ -3,17 +3,20 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
+    "noImplicitAny": false,
+    "types": [
+      "jest"
+    ],
     "typeRoots": [
-      "./node_modules/@types",
       "./src/types"
     ]
   },
-  "include": [
-    "src",
-    "node_modules",
-    "./@types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules/**/*.d.ts"
-  ]
+  // "include": [
+  //   "src",
+  //   "node_modules",
+  //   "./@types/**/*.ts"
+  // ],
+  // "exclude": [
+  //   "node_modules/**/*.d.ts"
+  // ]
 }
