@@ -9,9 +9,9 @@ import { cursorTo } from "readline";
 import RNFetchBlob from "rn-fetch-blob";
 import fs from "fs"
 import { useSelector } from "react-redux";
-import store, { RootState } from "../../Screens/Redux/Store";
+import store, { RootState } from "../Screens/Redux/Store";
 import { checkPermission, requestPermission } from "../permission/permission";
-import getAPI_KEY from "../../Screens/Redux/getRedux";
+import getAPI_KEY from "../Screens/Redux/getRedux";
 import serverURL from "./API_URL";
 import { stringify } from "querystring";
 //import { API_Key } from '@env';
@@ -100,7 +100,7 @@ export async function downloadMusic(videoID: string, fileName: string) {
     const youtubeVideoUrl = VIDEO_URL + videoID;
     const externalDiretory = RNFS.ExternalDirectoryPath;
     const externalStorage = RNFS.ExternalStorageDirectoryPath;
-    const file_path = `${RNFetchBlob.fs.dirs.DownloadDir}/${fileName}.mp3`;
+    const file_path = `${RNFetchBlob.fs.dirs.MainBundleDir}/Music/${fileName}.mp3`;
 
 
     const check = await checkPermission().then(check => { return check })
